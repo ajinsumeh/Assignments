@@ -1,8 +1,8 @@
 name: Mirror repo to S3
- 
+
 on:
   workflow_dispatch:
- 
+
 jobs:
   s3Backup:
     runs-on: ubuntu-latest
@@ -13,12 +13,12 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}  # Make sure this secret is set
+          aws-region: ${{ secrets.AWS_REGION }}  # Ensure this secret is set correctly
       - name: S3 Backup
         uses: peter-evans/s3-backup@v1
         env:
           ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          MIRROR_TARGET: s3://${{ secrets.S3_BUCKET }}  # Added s3:// prefix and backup path
+          MIRROR_TARGET: s3://${{ secrets.S3_BUCKET }}/github-backup  # Ensure correct bucket name and path
           SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         with:
           args: --overwrite --remove
