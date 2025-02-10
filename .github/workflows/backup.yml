@@ -14,7 +14,18 @@ jobs:
         run: |
           REPO_URL="https://github.com/${GITHUB_REPOSITORY}.git"
           cd repo-backup
+          # Clone the bare repository
           git clone --mirror $REPO_URL .
+          # Update all refs
+          git fetch --all
+          # Ensure we have all remote branches
+          git remote update origin --prune
+
+      - name: List all branches (for verification)
+        run: |
+          cd repo-backup
+          echo "Available branches:"
+          git branch -a
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
