@@ -7,10 +7,14 @@ jobs:
   backup:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Fetch all history for all branches and tags
+      - name: Create temporary directory
+        run: mkdir repo-backup
+
+      - name: Clone repository with all branches
+        run: |
+          REPO_URL="https://github.com/${GITHUB_REPOSITORY}.git"
+          cd repo-backup
+          git clone --mirror $REPO_URL .
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -19,14 +23,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Create backup
+      - name: Create and upload backup
         run: |
           TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
           REPO_NAME=${GITHUB_REPOSITORY##*/}
-          zip -r "${REPO_NAME}_${TIMESTAMP}.zip" .
-
-      - name: Upload to S3
-        run: |
-          TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
-          REPO_NAME=${GITHUB_REPOSITORY##*/}
-          aws s3 cp "${REPO_NAME}_${TIMESTAMP}.zip" "s3://${{ secrets.S3_BUCKET }}/${REPO_NAME}/${REPO_NAME}_${TIMESTAMP}.zip"
+          cd repo-backup
+          tar -czf "../${REPO_NAME}_${TIMESTAMP}.tar.gz" .
+          cd ..
+          aws s3 cp "${REPO_NAME}_${TIMESTAMP}.tar.gz" "s3://${{ secrets.S3_BUCKET }}/${REPO_NAME}/${REPO_NAME}_${TIMESTAMP}.tar.gz"
