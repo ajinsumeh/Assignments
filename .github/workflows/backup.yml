@@ -28,6 +28,6 @@ jobs:
           TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
           REPO_NAME=${GITHUB_REPOSITORY##*/}
           cd repo-backup
-          tar -czf "../${REPO_NAME}_${TIMESTAMP}.tar.gz" .
+          zip -r "../${REPO_NAME}_${TIMESTAMP}.zip" .
           cd ..
-          aws s3 cp "${REPO_NAME}_${TIMESTAMP}.tar.gz" "s3://${{ secrets.S3_BUCKET }}/${REPO_NAME}/${REPO_NAME}_${TIMESTAMP}.tar.gz"
+          aws s3 cp "${REPO_NAME}_${TIMESTAMP}.zip" "s3://${{ secrets.S3_BUCKET }}/${REPO_NAME}/${REPO_NAME}_${TIMESTAMP}.zip"
